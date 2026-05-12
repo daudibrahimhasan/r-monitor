@@ -1,0 +1,8 @@
+Hey — saw your post in r/{subreddit} about {problem}.
+
+{one_liner}
+
+If you want, I can share 2–3 quick suggestions based on what you described. If that’s useful, feel free to DM me (or reply here).
+
+— {sender_name}
+

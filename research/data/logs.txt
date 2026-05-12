@@ -1,0 +1,4 @@
+2026-05-01 14:09:56,358 INFO Searching Reddit for research leads...
+2026-05-01 14:12:16,373 INFO Found 370 raw results
+2026-05-01 14:12:18,540 INFO Leads created: 219 | Drafts: 102 | Emails sent: 0
+2026-05-01 14:12:18,540 INFO Daily report: P:\redditMonitor\reddit_intent_engine\research\data\exports\research_leads.md

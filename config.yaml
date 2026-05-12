@@ -1,0 +1,320 @@
+niche: "AI Automation, Web Design, RAG Agents, Performance Marketing"
+
+offer:
+  company_name: "Nexasity"
+  sender_name: "Rihito"
+  sender_email: "daudibrahimhassan19@gmail.com"
+  one_liner: "I help businesses save money and grow faster by automating their operations, building AI agents, and creating high-converting websites."
+  proof: "Recently automated HR workflows for a company and saved them $10,000/month in operational costs."
+  cta: "Want me to map out what's automatable in your business? Free 20-min audit, no pitch."
+
+subreddits:
+  - n8n
+  - automation
+  - ChatGPT
+  - artificial
+  - OpenAI
+  - AIToolsTech
+  - Zapier
+  - ollama
+  - nocode
+  - lowcode
+  - MachineLearning
+  - LocalLLaMA
+  - smallbusiness
+  - smallbusinessUS
+  - Entrepreneur
+  - EntrepreneurRideAlong
+  - growmybusiness
+  - startups
+  - SaaS
+  - microsaas
+  - indiehackers
+  - side_project
+  - agency
+  - localbusiness
+  - digitalnomad
+  - forhire
+  - Designers_forhire
+  - freelance_forhire
+  - DesignJobs
+  - webdesign
+  - web_design
+  - ecommerce
+  - shopify
+  - Wordpress
+  - PPC
+  - GoogleAds
+  - FacebookAds
+  - marketing
+  - SEO
+  - digital_marketing
+  - socialmedia
+  - humanresources
+  - operations
+  - productivity
+
+service_keywords:
+  - automate
+  - automation
+  - AI agent
+  - AI assistant
+  - chatbot
+  - workflow
+  - n8n
+  - make.com
+  - zapier
+  - RAG
+  - custom GPT
+  - AI trained
+  - personalized agent
+  - AI for business
+  - document AI
+  - knowledge base AI
+  - AI chatbot
+  - voice agent
+  - AI secretary
+  - website
+  - web design
+  - landing page
+  - redesign
+  - shopify
+  - wordpress
+  - frontend
+  - ecommerce site
+  - online store
+  - portfolio site
+  - conversion rate
+  - Google Ads
+  - Facebook Ads
+  - paid ads
+  - PPC
+  - performance marketing
+  - lead generation
+  - ad campaign
+  - ROAS
+  - meta ads
+  - ad budget
+  - HR automation
+  - payroll automation
+  - onboarding automation
+  - employee management
+  - repetitive tasks
+  - manual process
+  - save time
+  - reduce costs
+  - operational costs
+  - back office
+
+competitors:
+  - zapier
+  - make.com
+  - wix
+  - squarespace
+  - webflow
+  - fiverr
+  - upwork
+  - hubspot
+  - salesforce
+  - monday.com
+
+intent_phrases:
+  - looking for
+  - looking for someone
+  - recommend
+  - recommendations
+  - anyone know
+  - does anyone know
+  - need help
+  - need a
+  - hire
+  - hiring
+  - looking to hire
+  - want to hire
+  - seeking
+  - urgent
+  - asap
+  - budget
+  - paid
+  - will pay
+  - deadline
+  - quote
+  - pricing
+  - how much
+  - affordable
+  - alternative to
+  - got burned
+  - anyone used
+  - has anyone used
+  - who do you use
+  - where can i find
+  - dm me
+  - open to suggestions
+  - automate my
+  - tired of doing manually
+  - tired of copy pasting
+  - repetitive tasks
+  - wasting time on
+  - need a chatbot
+  - AI agent for
+  - custom GPT
+  - AI for my business
+  - replace manual
+  - automate workflow
+  - n8n help
+  - zapier alternative
+  - automate follow up
+  - AI trained on my
+  - build me an agent
+  - AI assistant for
+  - reduce my costs
+  - cutting costs
+  - save time
+  - need a website
+  - build my website
+  - website not converting
+  - website looks bad
+  - website outdated
+  - fix my website
+  - redesign my website
+  - need a landing page
+  - run my ads
+  - manage my ads
+  - google ads help
+  - facebook ads help
+  - not getting leads
+  - ads not working
+  - improve my ROAS
+  - ad campaign help
+  - get more leads
+  - lead generation help
+
+negative_phrases:
+  - free
+  - no budget
+  - zero budget
+  - homework
+  - school project
+  - student project
+  - class project
+  - just curious
+  - learning
+  - not hiring
+  - unpaid
+  - volunteer
+  - for free
+  - pro bono
+
+automation:
+  min_score_to_save: 20
+  min_score_to_draft: 40
+  min_score_to_auto_send: 75
+  max_actionable_age_hours: 24
+  daily_send_limit: 20
+  followup_after_hours: 48
+  max_followups: 1
+
+reddit:
+  # Keep a realistic UA; Reddit may throttle generic/empty UAs.
+  user_agent: "RedditIntentLeadEngine/1.0 (by u/your_username)"
+  timeout_seconds: 15
+  max_requests: 120
+  search_sort: "new"
+  search_time_filter: "week"
+  scan_new_posts: true
+  new_limit_per_subreddit: 35
+  # Optional: provide explicit search queries; if omitted we generate queries.
+  search_queries:
+    - "automate my business"
+    - "need AI automation"
+    - "automate my workflow"
+    - "tired of manual tasks"
+    - "repetitive tasks automation"
+    - "need a chatbot"
+    - "build me a chatbot"
+    - "AI agent for my business"
+    - "custom GPT help"
+    - "n8n workflow help"
+    - "zapier alternative"
+    - "make.com help"
+    - "automate my HR"
+    - "automate onboarding"
+    - "automate follow up"
+    - "automate repetitive tasks"
+    - "reduce operational costs"
+    - "cutting business costs automation"
+    - "AI assistant for business"
+    - "AI trained on my documents"
+    - "RAG pipeline help"
+    - "knowledge base chatbot"
+    - "AI for customer support"
+    - "automate lead follow up"
+    - "business process automation"
+    - "hire AI developer"
+    - "looking for automation expert"
+    - "need automation help"
+    - "looking for web designer"
+    - "need web designer"
+    - "hire web designer"
+    - "need website built"
+    - "build me a website"
+    - "need landing page"
+    - "website redesign help"
+    - "affordable web design"
+    - "website not converting"
+    - "website looks unprofessional"
+    - "need shopify developer"
+    - "wordpress help needed"
+    - "landing page designer"
+    - "ecommerce website help"
+    - "need online store"
+    - "recommend web designer"
+    - "website help small business"
+    - "need Google Ads help"
+    - "Facebook ads not working"
+    - "hire performance marketer"
+    - "run my ads for me"
+    - "need lead generation help"
+    - "ads not getting results"
+    - "improve my ROAS"
+    - "meta ads help"
+    - "PPC help needed"
+    - "need more leads business"
+    - "digital marketing help"
+    - "ad campaign management"
+    - "looking for marketing advisor"
+    - "performance marketing help"
+    - '"need a website"'
+    - '"automate my"'
+    - '"need a chatbot"'
+    - '"build me an AI"'
+    - '"tired of doing this manually"'
+    - '"wasting so much time"'
+    - '"need to automate"'
+    - '"looking for a developer"'
+    - '"need someone to build"'
+    - '"paid project"'
+    - '"dm me your portfolio"'
+    - '"open to quotes"'
+    - '"my ads are not working"'
+    - '"not getting any leads"'
+    - '"fix my website"'
+    - '"redesign my website"'
+
+email:
+  # Safety default: drafts only unless enabled + --send is passed.
+  enabled: false
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  sender_name: "Rihito"
+  sender_email: "daudibrahimhassan19@gmail.com"
+  # Prefer env var instead of checking secrets into files.
+  password_env_var: "RILE_GMAIL_APP_PASSWORD"
+
+database:
+  # Use a filename that isn't likely to be locked by previous runs.
+  filename: "leads.sqlite"
+
+exports:
+  folder: "data/exports"
+  dated_snapshots: false

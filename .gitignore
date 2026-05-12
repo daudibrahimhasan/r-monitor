@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+.venv/
+data/*.db
+data/*.db-journal
+data/*.sqlite
+data/logs.txt
+data/_smoke_tmp/
+data/test_write.txt
+.vscode/
+.idea/

@@ -1,0 +1,257 @@
+# Research mode is fully isolated from business leads.
+run_mode: "research"
+
+niche: "AI Research Collaboration"
+
+offer:
+  company_name: "Independent AI Researcher"
+  sender_name: "Rihito"
+  sender_email: "daudibrahimhassan19@gmail.com"
+  one_liner: "I'm an applied AI researcher specializing in LLM orchestration, multi-model decision systems, AI safety, and NLP - looking to collaborate on research papers and contribute meaningfully as a co-author."
+  proof: "Built a production-grade LLM-native decision intelligence platform with multi-model orchestration across Groq, Gemini, SambaNova, and OpenRouter - with circuit breakers, confidence calibration, retrieval-backed reasoning, and adaptive prompt flows."
+  cta: "I'd love to contribute to your research - I can help with experiments, writing, implementation, or analysis. Would you be open to a quick chat about collaboration?"
+
+subreddits:
+  - MachineLearning
+  - artificial
+  - deeplearning
+  - reinforcementlearning
+  - LanguageTechnology
+  - NLP
+  - LLMOps
+  - LocalLLaMA
+  - AIAlignment
+  - ChatGPT
+  - OpenAI
+  - learnmachinelearning
+  - GradSchool
+  - academia
+  - PhD
+  - gradadmissions
+  - cscareerquestions
+  - compsci
+  - math
+  - statistics
+  - datascience
+  - datascienceproject
+  - research
+  - AskAcademia
+  - Scholar
+  - paperswithcode
+  - AIToolsTech
+  - ollama
+  - LangChain
+  - semantickernel
+  - PromptEngineering
+
+service_keywords:
+  - LLM
+  - large language model
+  - language model
+  - transformer
+  - fine tuning
+  - RLHF
+  - reinforcement learning
+  - machine unlearning
+  - AI safety
+  - AI alignment
+  - NLP
+  - natural language processing
+  - prompt engineering
+  - RAG
+  - retrieval augmented generation
+  - multi-agent
+  - AI orchestration
+  - LLMOps
+  - model evaluation
+  - benchmark
+  - hallucination
+  - confidence calibration
+  - decision intelligence
+  - knowledge distillation
+  - emergent behavior
+  - research paper
+  - co-author
+  - co-authorship
+  - research collaboration
+  - publish paper
+  - arxiv
+  - IEEE
+  - ACL
+  - NeurIPS
+  - ICLR
+  - ICML
+  - research intern
+  - research assistant
+  - collaborator
+  - joint research
+  - literature review
+  - experiment design
+  - dataset
+  - ablation study
+  - FastAPI
+  - Python
+  - TypeScript
+  - React
+  - Groq
+  - Gemini
+  - OpenRouter
+  - SambaNova
+  - vector database
+  - embeddings
+  - semantic search
+
+intent_phrases:
+  - looking for collaborator
+  - looking for co-author
+  - need a collaborator
+  - need co-author
+  - seeking collaborator
+  - open to collaboration
+  - want to collaborate
+  - looking for research partner
+  - research partner wanted
+  - collab wanted
+  - joint paper
+  - working on a paper
+  - writing a paper
+  - looking for research intern
+  - need research assistant
+  - research intern wanted
+  - research help needed
+  - need help with research
+  - looking for help with paper
+  - need someone to help
+  - contributor wanted
+  - open source research
+  - want to publish
+  - trying to publish
+  - submitting to
+  - paper submission
+  - working on arxiv
+  - NeurIPS submission
+  - ICLR submission
+  - ICML submission
+  - ACL submission
+  - conference deadline
+  - workshop paper
+  - need feedback on paper
+  - peer review help
+  - stuck on my research
+  - need help with experiments
+  - need implementation help
+  - struggling with
+  - overwhelmed with paper
+  - dont know where to start
+  - need guidance on
+  - anyone working on
+  - has anyone researched
+  - is there existing work on
+  - looking for advice on
+
+negative_phrases:
+  - paid position only
+  - full time only
+  - must be enrolled
+  - must be a student
+  - university affiliation required
+  - institutional email required
+  - no remote
+  - in person only
+  - stipend only
+  - unpaid internship
+  - homework help
+  - do my homework
+  - write my essay
+  - just curious
+  - no collaboration
+
+automation:
+  min_score_to_save: 15
+  min_score_to_draft: 35
+  min_score_to_auto_send: 80
+  max_actionable_age_hours: 72
+  daily_send_limit: 10
+  followup_after_hours: 72
+  max_followups: 1
+
+reddit:
+  user_agent: "ResearchCollabFinder/1.0 (by u/your_username)"
+  timeout_seconds: 15
+  max_requests: 100
+  search_sort: "new"
+  search_time_filter: "month"
+  search_queries:
+    - "looking for research collaborator"
+    - "need co-author for paper"
+    - "seeking research partner"
+    - "open to collaboration LLM"
+    - "research collaboration AI"
+    - "want to collaborate on paper"
+    - "looking for co-author machine learning"
+    - "research partner NLP"
+    - "collaborator wanted deep learning"
+    - "joint research paper AI"
+    - "co-author wanted arxiv"
+    - "research intern wanted AI"
+    - "need research assistant ML"
+    - "contributor wanted research"
+    - "working on a paper LLM"
+    - "submitting to NeurIPS"
+    - "submitting to ICLR"
+    - "submitting to ICML"
+    - "submitting to ACL"
+    - "arxiv paper help"
+    - "want to publish research"
+    - "trying to get paper published"
+    - "paper submission help"
+    - "workshop paper collaboration"
+    - "conference paper deadline"
+    - "need feedback on research paper"
+    - "LLM research collaboration"
+    - "AI safety research help"
+    - "AI alignment collaboration"
+    - "machine unlearning research"
+    - "reinforcement learning paper"
+    - "NLP research partner"
+    - "prompt engineering research"
+    - "RAG research paper"
+    - "multi-agent systems research"
+    - "LLM evaluation research"
+    - "hallucination detection research"
+    - "model alignment paper"
+    - "RLHF research collaboration"
+    - "fine tuning research help"
+    - "need help with ML experiments"
+    - "need implementation help paper"
+    - "stuck on research"
+    - "anyone working on LLM safety"
+    - "anyone researching AI alignment"
+    - "is there existing work on"
+    - "looking for advice on research"
+    - "overwhelmed with paper deadline"
+    - '"looking for a collaborator"'
+    - '"need a co-author"'
+    - '"research partner wanted"'
+    - '"open to collaborating"'
+    - '"working on a paper"'
+    - '"submitting to arxiv"'
+    - '"need help with my research"'
+    - '"anyone want to collaborate"'
+    - '"joint paper"'
+    - '"research intern"'
+
+database:
+  filename: "research_leads.sqlite"
+  folder: "data_clean"
+
+exports:
+  folder: "data_clean/exports"
+
+email:
+  enabled: false
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  sender_name: "Rihito"
+  sender_email: "daudibrahimhassan19@gmail.com"
+  password_env_var: "RILE_GMAIL_APP_PASSWORD"

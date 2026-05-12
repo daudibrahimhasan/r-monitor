@@ -1,0 +1,17 @@
+Hey,
+
+Saw your Reddit post in r/{subreddit} about {problem}.
+
+Based on what you wrote, it sounds like you need someone who can help quickly without making the process complicated.
+
+{one_liner}
+
+{proof}
+
+{cta}
+
+Best,
+{sender_name}
+
+P.S. If this is not relevant, reply “no” and I will not follow up.
+
