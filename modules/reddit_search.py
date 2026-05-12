@@ -3,13 +3,17 @@ from __future__ import annotations
 import logging
 import time
 import urllib.parse
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
+import threading
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
 import requests
 from bs4 import BeautifulSoup
+
+# Shared executor for network requests to avoid overhead of creating new threads/pools.
+_NETWORK_EXECUTOR = ThreadPoolExecutor(max_workers=50)
 
 
 @dataclass(frozen=True)
@@ -50,100 +54,121 @@ def search_reddit(cfg: dict[str, Any]) -> list[dict[str, Any]]:
     search_time_filter = str(reddit_cfg.get("search_time_filter") or "day")
 
     results: list[dict[str, Any]] = []
-
+    results_lock = threading.Lock()
     req_count = 0
+    req_lock = threading.Lock()
+
+    def _should_continue() -> bool:
+        with req_lock:
+            return req_count < max_requests
+
+    def _inc_req():
+        nonlocal req_count
+        with req_lock:
+            req_count += 1
+
+    tasks = []
+
     if bool(reddit_cfg.get("scan_new_posts")):
         new_limit = int(reddit_cfg.get("new_limit_per_subreddit") or 25)
         for subreddit in subreddits:
-            if req_count >= max_requests:
-                break
-            try:
-                fresh_posts = _fetch_subreddit_new(
-                    subreddit=str(subreddit),
-                    headers=headers,
-                    timeout_seconds=settings.timeout_seconds,
-                    limit=new_limit,
-                )
-                req_count += 1
-                results.extend(fresh_posts)
-            except Exception:
-                continue
-            time.sleep(0.1)
+
+            def _job_new(sub=subreddit):
+                if not _should_continue():
+                    return
+                try:
+                    fresh = _fetch_subreddit_new(
+                        subreddit=str(sub),
+                        headers=headers,
+                        timeout_seconds=settings.timeout_seconds,
+                        limit=new_limit,
+                    )
+                    _inc_req()
+                    with results_lock:
+                        results.extend(fresh)
+                except Exception:
+                    pass
+
+            tasks.append(_NETWORK_EXECUTOR.submit(_job_new))
 
     for subreddit in subreddits:
         for query in queries:
-            if req_count >= max_requests:
-                break
-            encoded_query = urllib.parse.quote(query)
-            url = (
-                f"https://www.reddit.com/r/{subreddit}/search.json"
-                f"?q={encoded_query}&restrict_sr=1&sort={urllib.parse.quote(search_sort)}&t={urllib.parse.quote(search_time_filter)}&raw_json=1"
-            )
 
-            try:
-                resp = _safe_get(url, headers=headers, timeout_seconds=settings.timeout_seconds)
-                req_count += 1
-                if resp is None:
-                    continue
-                if resp.status_code == 429:
-                    time.sleep(2.5)
-                    continue
-                if resp.status_code != 200:
-                    # Reddit sometimes blocks JSON endpoints; fall back to RSS.
-                    rss_results = _search_rss(
-                        subreddit=str(subreddit),
-                        query=str(query),
-                        headers=headers,
-                        timeout_seconds=settings.timeout_seconds,
-                        search_sort=search_sort,
-                        search_time_filter=search_time_filter,
-                    )
-                    if rss_results:
-                        results.extend(rss_results)
-                    continue
+            def _job_search(sub=subreddit, q=query):
+                if not _should_continue():
+                    return
+                encoded_query = urllib.parse.quote(q)
+                url = (
+                    f"https://www.reddit.com/r/{sub}/search.json"
+                    f"?q={encoded_query}&restrict_sr=1&sort={urllib.parse.quote(search_sort)}&t={urllib.parse.quote(search_time_filter)}&raw_json=1"
+                )
 
-                data = resp.json()
-                children = data.get("data", {}).get("children", []) or []
-                for item in children:
-                    p = item.get("data", {}) or {}
-                    created = datetime.fromtimestamp(p.get("created_utc", 0), tz=timezone.utc)
-                    permalink = p.get("permalink") or ""
-
-                    results.append(
-                        {
-                            "reddit_id": p.get("id"),
-                            "subreddit": str(p.get("subreddit") or subreddit),
-                            "title": p.get("title", "") or "",
-                            "body": p.get("selftext", "") or "",
-                            "author": p.get("author", "") or "",
-                            "url": ("https://reddit.com" + permalink) if permalink.startswith("/") else str(p.get("url") or ""),
-                            "created_utc": created.isoformat(),
-                            "num_comments": int(p.get("num_comments") or 0),
-                            "reddit_score": int(p.get("score") or 0),
-                            "query": query,
-                        }
-                    )
-            except Exception as exc:
-                # JSON parse / transient network issue -> RSS fallback
-                logging.debug("search.json failed for r/%s query %r: %s", subreddit, query, exc)
                 try:
-                    rss_results = _search_rss(
-                        subreddit=str(subreddit),
-                        query=str(query),
-                        headers=headers,
-                        timeout_seconds=settings.timeout_seconds,
-                        search_sort=search_sort,
-                        search_time_filter=search_time_filter,
-                    )
-                    if rss_results:
-                        results.extend(rss_results)
-                except Exception as rss_exc:
-                    logging.debug("RSS fallback failed for r/%s query %r: %s", subreddit, query, rss_exc)
-                    pass
-                continue
+                    resp = _safe_get(url, headers=headers, timeout_seconds=settings.timeout_seconds)
+                    _inc_req()
+                    if resp is None:
+                        return
+                    if resp.status_code == 429:
+                        return
+                    if resp.status_code != 200:
+                        rss_results = _search_rss(
+                            subreddit=str(sub),
+                            query=str(q),
+                            headers=headers,
+                            timeout_seconds=settings.timeout_seconds,
+                            search_sort=search_sort,
+                            search_time_filter=search_time_filter,
+                        )
+                        if rss_results:
+                            with results_lock:
+                                results.extend(rss_results)
+                        return
 
-            time.sleep(0.2)
-        if req_count >= max_requests:
+                    data = resp.json()
+                    children = data.get("data", {}).get("children", []) or []
+                    local_posts = []
+                    for item in children:
+                        p = item.get("data", {}) or {}
+                        created = datetime.fromtimestamp(p.get("created_utc", 0), tz=timezone.utc)
+                        permalink = p.get("permalink") or ""
+                        local_posts.append(
+                            {
+                                "reddit_id": p.get("id"),
+                                "subreddit": str(p.get("subreddit") or sub),
+                                "title": p.get("title", "") or "",
+                                "body": p.get("selftext", "") or "",
+                                "author": p.get("author", "") or "",
+                                "url": ("https://reddit.com" + permalink) if permalink.startswith("/") else str(p.get("url") or ""),
+                                "created_utc": created.isoformat(),
+                                "num_comments": int(p.get("num_comments") or 0),
+                                "reddit_score": int(p.get("score") or 0),
+                                "query": q,
+                            }
+                        )
+                    with results_lock:
+                        results.extend(local_posts)
+                except Exception as exc:
+                    logging.debug("search.json failed for r/%s query %r: %s", sub, q, exc)
+                    try:
+                        rss_results = _search_rss(
+                            subreddit=str(sub),
+                            query=str(q),
+                            headers=headers,
+                            timeout_seconds=settings.timeout_seconds,
+                            search_sort=search_sort,
+                            search_time_filter=search_time_filter,
+                        )
+                        if rss_results:
+                            with results_lock:
+                                results.extend(rss_results)
+                    except Exception:
+                        pass
+
+            tasks.append(_NETWORK_EXECUTOR.submit(_job_search))
+
+    # Wait for completion but respect max_requests
+    for _ in as_completed(tasks):
+        if not _should_continue():
             break
 
     # De-dupe by URL, keep newest seen first.
@@ -294,12 +319,11 @@ def _safe_get(url: str, *, headers: dict[str, str], timeout_seconds: int) -> req
         return session.get(url, headers=headers, timeout=timeout_seconds, allow_redirects=True)
 
     hard_timeout = max(1, int(timeout_seconds) + 2)
-    with ThreadPoolExecutor(max_workers=1) as ex:
-        fut = ex.submit(_do)
-        try:
-            return fut.result(timeout=hard_timeout)
-        except FutureTimeout:
-            logging.debug("Hard timeout fetching %s", url)
-            return None
-        except Exception:
-            return None
+    fut = _NETWORK_EXECUTOR.submit(_do)
+    try:
+        return fut.result(timeout=hard_timeout)
+    except FutureTimeout:
+        logging.debug("Hard timeout fetching %s", url)
+        return None
+    except Exception:
+        return None
