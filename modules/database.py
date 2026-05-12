@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass
+import threading
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable
@@ -10,6 +11,7 @@ from typing import Any, Iterable
 @dataclass(frozen=True)
 class Database:
     db_path: Path
+    _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(str(self.db_path), timeout=30)
@@ -88,58 +90,61 @@ class Database:
             conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
     def post_exists(self, *, url: str, reddit_id: str) -> bool:
-        with self._connect() as conn:
-            row = conn.execute(
-                "SELECT 1 FROM posts WHERE url = ? OR reddit_id = ? LIMIT 1",
-                (url, reddit_id),
-            ).fetchone()
-            return row is not None
+        with self._lock:
+            with self._connect() as conn:
+                row = conn.execute(
+                    "SELECT 1 FROM posts WHERE url = ? OR reddit_id = ? LIMIT 1",
+                    (url, reddit_id),
+                ).fetchone()
+                return row is not None
 
     def save_post(self, post: dict[str, Any], *, status: str) -> int:
         now = datetime.now(timezone.utc).isoformat()
-        with self._connect() as conn:
-            cur = conn.execute(
-                """
-                INSERT OR IGNORE INTO posts
-                (reddit_id, subreddit, title, body, author, url, created_utc, found_at, research_topic, score, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    post.get("reddit_id"),
-                    post.get("subreddit"),
-                    post.get("title", ""),
-                    post.get("body", ""),
-                    post.get("author", ""),
-                    post.get("url"),
-                    post.get("created_utc"),
-                    now,
-                    post.get("research_topic", ""),
-                    int(post.get("score", 0)),
-                    status,
-                ),
-            )
-            return int(cur.lastrowid)
+        with self._lock:
+            with self._connect() as conn:
+                cur = conn.execute(
+                    """
+                    INSERT OR IGNORE INTO posts
+                    (reddit_id, subreddit, title, body, author, url, created_utc, found_at, research_topic, score, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        post.get("reddit_id"),
+                        post.get("subreddit"),
+                        post.get("title", ""),
+                        post.get("body", ""),
+                        post.get("author", ""),
+                        post.get("url"),
+                        post.get("created_utc"),
+                        now,
+                        post.get("research_topic", ""),
+                        int(post.get("score", 0)),
+                        status,
+                    ),
+                )
+                return int(cur.lastrowid or 0)
 
     def save_contact(self, post_id: int, contact: dict[str, Any]) -> int:
         now = datetime.now(timezone.utc).isoformat()
-        with self._connect() as conn:
-            cur = conn.execute(
-                """
-                INSERT INTO contacts
-                (post_id, contact_type, contact_value, source_url, safe_to_email, reason, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    post_id,
-                    contact.get("type"),
-                    contact.get("value"),
-                    contact.get("source_url"),
-                    1 if contact.get("safe_to_email") else 0,
-                    contact.get("reason", ""),
-                    now,
-                ),
-            )
-            return int(cur.lastrowid)
+        with self._lock:
+            with self._connect() as conn:
+                cur = conn.execute(
+                    """
+                    INSERT INTO contacts
+                    (post_id, contact_type, contact_value, source_url, safe_to_email, reason, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        post_id,
+                        contact.get("type"),
+                        contact.get("value"),
+                        contact.get("source_url"),
+                        1 if contact.get("safe_to_email") else 0,
+                        contact.get("reason", ""),
+                        now,
+                    ),
+                )
+                return int(cur.lastrowid or 0)
 
     def save_outreach(
         self,
@@ -153,25 +158,26 @@ class Database:
         sent_at: datetime | None,
         followup_due_at: datetime | None,
     ) -> int:
-        with self._connect() as conn:
-            cur = conn.execute(
-                """
-                INSERT INTO outreach
-                (post_id, contact_id, channel, subject, body, status, sent_at, followup_due_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    post_id,
-                    contact_id,
-                    channel,
-                    subject,
-                    body,
-                    status,
-                    sent_at.isoformat() if sent_at else None,
-                    followup_due_at.isoformat() if followup_due_at else None,
-                ),
-            )
-            return int(cur.lastrowid)
+        with self._lock:
+            with self._connect() as conn:
+                cur = conn.execute(
+                    """
+                    INSERT INTO outreach
+                    (post_id, contact_id, channel, subject, body, status, sent_at, followup_due_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        post_id,
+                        contact_id,
+                        channel,
+                        subject,
+                        body,
+                        status,
+                        sent_at.isoformat() if sent_at else None,
+                        followup_due_at.isoformat() if followup_due_at else None,
+                    ),
+                )
+                return int(cur.lastrowid or 0)
 
     def is_suppressed(self, contact_value: str) -> bool:
         with self._connect() as conn:

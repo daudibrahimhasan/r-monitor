@@ -60,7 +60,8 @@ def main() -> int:
 
     report_path = generate_daily_report(db, exports_dir, cfg)
     assert report_path.exists(), "expected report file to be created"
-    assert (exports_dir / f"subreddit_sources_{datetime.now(timezone.utc).date().isoformat()}.csv").exists()
+    # The system uses 'current' suffix unless dated_snapshots is enabled
+    assert (exports_dir / "subreddit_sources_current.csv").exists()
 
     print("SMOKE TEST OK")
     return 0

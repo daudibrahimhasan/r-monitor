@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import logging
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -93,27 +95,31 @@ def main() -> int:
     leads_created = 0
     drafts_created = 0
     emails_sent = 0
+    stats_lock = threading.Lock()
 
-    for post in posts:
+    def _process_post(post):
+        nonlocal leads_created, drafts_created, emails_sent
         post["research_topic"] = str(post.get("query") or "")
         if db.post_exists(url=post["url"], reddit_id=post["reddit_id"]):
-            continue
+            return
 
         score = score_post(post, cfg)
         post["score"] = score
 
         if score < min_score:
             db.save_post(post, status="ignored" if run_mode == "business" else "research_ignored")
-            continue
+            return
 
         post_id = db.save_post(post, status="lead" if run_mode == "business" else "research_candidate")
-        leads_created += 1
+        with stats_lock:
+            leads_created += 1
 
         if run_mode == "research":
             if score < min_score_to_draft:
-                continue
+                return
             outreach = generate_outreach(post, cfg, contact=None)
-            drafts_created += 1
+            with stats_lock:
+                drafts_created += 1
             db.save_outreach(
                 post_id=post_id,
                 contact_id=None,
@@ -124,10 +130,10 @@ def main() -> int:
                 sent_at=None,
                 followup_due_at=None,
             )
-            continue
+            return
 
         if score < min_score_to_draft:
-            continue
+            return
 
         contact = find_safe_contact(post, cfg)
 
@@ -136,7 +142,8 @@ def main() -> int:
             contact_id = db.save_contact(post_id, contact)
 
         outreach = generate_outreach(post, cfg, contact=contact)
-        drafts_created += 1
+        with stats_lock:
+            drafts_created += 1
 
         sent_today = db.count_sent_today(datetime.now(timezone.utc))
 
@@ -161,7 +168,8 @@ def main() -> int:
                 sent_at=datetime.now(timezone.utc),
                 followup_due_at=db.compute_followup_due_at(cfg),
             )
-            emails_sent += 1
+            with stats_lock:
+                emails_sent += 1
         else:
             status = "queued_for_review"
             channel = "manual_review"
@@ -183,6 +191,11 @@ def main() -> int:
                 sent_at=None,
                 followup_due_at=None,
             )
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(_process_post, post) for post in posts]
+        for _ in as_completed(futures):
+            pass
 
     report_path = generate_daily_report(db, exports_dir, cfg)
     logging.info("Leads created: %d | Drafts: %d | Emails sent: %d", leads_created, drafts_created, emails_sent)
